@@ -33,8 +33,12 @@ public class CreatorAgent extends Agent
 			votes = new int[optionQnt];
 			
 //			Extraindo opções disponiveis
+			String op = "Opcoes: ";
 			for (int i = 0; i < optionQnt; i++)
+			{
 				options[i] = (String) args[i+1];
+				op+= options[i] + " ";
+			}
 			
 //			Extraindo o numero de agentes envolvidos na votação
 			agentQnt = Integer.parseInt((String) args[optionQnt+1]);
@@ -57,8 +61,10 @@ public class CreatorAgent extends Agent
 				}
 			}
 			
+			System.out.println(op);
+			
 			this.addBehaviour(new PoolingBehaviour(this, agentQnt));
-			this.addBehaviour(new StartBehaviour(this, "Simple"));
+			this.addBehaviour(new StartBehaviour(this, "Simple", agentQnt));
 		}
 	}
 	
@@ -75,5 +81,11 @@ public class CreatorAgent extends Agent
 	public void increment(int index)
 	{
 		votes[index]++;
+	}
+	
+//	Needed for testing
+	public void setOptions(String[] op)
+	{
+		this.options = op;
 	}
 }

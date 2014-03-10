@@ -17,28 +17,33 @@ public class VoterAgent extends Agent
 		options = (String[]) getArguments();
 		
 		DFAgentDescription dfd = new DFAgentDescription();
-        ServiceDescription sd = new ServiceDescription();
+	    ServiceDescription sd = new ServiceDescription();
 		dfd.setName(getAID());
 		sd.setType("voter");
 		sd.setName("Voting");
 		dfd.addServices(sd);
 		
 		try {  
-            DFService.register(this, dfd );  
-        }
-        catch (FIPAException fe) { fe.printStackTrace(); }
+	        DFService.register(this, dfd );  
+	    }
+	    catch (FIPAException fe) { fe.printStackTrace(); }
 		
 		this.addBehaviour(new ListenBehaviour(this));
 	}
 
-	 protected void takeDown() 
-     {
-        try { DFService.deregister(this); }
-        catch (Exception e) {}
-     }
+	protected void takeDown() 
+	{
+		try { DFService.deregister(this); }
+		catch (Exception e) {}
+	}
 	
 	public String[] getOptions() 
 	{
 		return options;
+	}
+	
+	public String getOption(int index) 
+	{
+		return options[index];
 	}
 }
