@@ -21,7 +21,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() 
 	{
-		ACLMessage msg = myAgent.receive();
+		ACLMessage msg = agent.receive();
 		
 		while (msg != null && msg.getConversationId() != null)
 		{
@@ -30,10 +30,10 @@ public class PoolingBehaviour extends SimpleBehaviour {
 				pool(msg.getContent(), extractNumber(msg.getSender().getName()));
 				ACLMessage reply = msg.createReply();
 				reply.setConversationId("Done");
-				myAgent.send(reply);
+				agent.send(reply);
 			}
 			
-			msg = myAgent.receive();
+			msg = agent.receive();
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		agent.increment(i);
 		votesLeft--;
 		
-		System.out.println("Eleitor " + name + " - Vota na opção de numero " + i + " (" + agent.getOption(i) + "). Total de Votos desta opção: " + agent.getVotes(i));
+		System.out.println("Eleitor " + name + " - Vota na opção de numero " + (i+1) + " (" + agent.getOption(i) + "). Total de Votos desta opção: " + agent.getVotes(i));
 	}
 	
 	public String extractNumber(String s)

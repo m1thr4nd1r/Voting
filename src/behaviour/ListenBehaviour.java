@@ -29,7 +29,7 @@ public class ListenBehaviour extends SimpleBehaviour
 	
 	public void action()
 	{
-		ACLMessage msg = myAgent.receive();
+		ACLMessage msg = agent.receive();
 		
 		while (msg != null && msg.getConversationId() != null)
 		{
@@ -40,13 +40,13 @@ public class ListenBehaviour extends SimpleBehaviour
 //					System.out.println("Cheguei a ler a mensagem Simple (" + extractNumber(myAgent.getName()) + ")");
 					ACLMessage reply = msg.createReply();
 					reply.setContent(simpleVoting());
-					this.myAgent.send(reply);
+					this.agent.send(reply);
 				}
 			}
 			else if (msg.getConversationId().equals("Done"))
 				this.done = true;
 			
-			msg = myAgent.receive();
+			msg = agent.receive();
 		}		
 	}
 	
@@ -63,7 +63,8 @@ public class ListenBehaviour extends SimpleBehaviour
 	private String simpleVoting()
 	{
 //		System.out.println("Cheguei no simpleVoting (" + extractNumber(myAgent.getName()) + ")");
-		String choice = shuffle(agent.getOptions())[0];
+		String[] options = agent.getOptions().clone();
+		String choice = shuffle(options)[0];
 		
 		return String.valueOf(find(choice));
 	}
@@ -108,6 +109,7 @@ public class ListenBehaviour extends SimpleBehaviour
 	
 	public int onEnd()
 	{
+		agent.doDelete();
 		myAgent.doDelete();
 		return 0;
 	}

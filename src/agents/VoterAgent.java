@@ -46,4 +46,10 @@ public class VoterAgent extends Agent
 	{
 		return options[index];
 	}
+	
+//	Needed for testing
+	public void setOptions(String[] op)
+	{
+		this.options = op;
+	}
 }

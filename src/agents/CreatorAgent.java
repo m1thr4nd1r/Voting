@@ -33,12 +33,8 @@ public class CreatorAgent extends Agent
 			votes = new int[optionQnt];
 			
 //			Extraindo opções disponiveis
-			String op = "Opcoes: ";
 			for (int i = 0; i < optionQnt; i++)
-			{
 				options[i] = (String) args[i+1];
-				op+= options[i] + " ";
-			}
 			
 //			Extraindo o numero de agentes envolvidos na votação
 			agentQnt = Integer.parseInt((String) args[optionQnt+1]);
@@ -48,12 +44,13 @@ public class CreatorAgent extends Agent
 			Runtime rt = Runtime.instance();
 			Profile p = new ProfileImpl();
 			ContainerController agentContainer = rt.createAgentContainer(p);
+			String[] voterOptions = options.clone();
 			
 //			Criando agentes
 			for (int i = 0; i < agentQnt; i++)
 			{
 				try {
-					AgentController ac = agentContainer.createNewAgent("VoterAgent"+(i+1), "agents.VoterAgent", options);
+					AgentController ac = agentContainer.createNewAgent("VoterAgent"+(i+1), "agents.VoterAgent", voterOptions);
 					ac.start();
 				} catch (StaleProxyException e) {
 					// TODO Auto-generated catch block
@@ -61,7 +58,7 @@ public class CreatorAgent extends Agent
 				}
 			}
 			
-			System.out.println(op);
+			printOptions();
 			
 			this.addBehaviour(new PoolingBehaviour(this, agentQnt));
 			this.addBehaviour(new StartBehaviour(this, "Simple", agentQnt));
@@ -83,9 +80,12 @@ public class CreatorAgent extends Agent
 		votes[index]++;
 	}
 	
-//	Needed for testing
-	public void setOptions(String[] op)
+	public void printOptions()
 	{
-		this.options = op;
+		String op = "Opcoes: ";
+		for (int i = 0; i < options.length; i++)
+			op+= options[i] + " ";
+		
+		System.out.println(op);
 	}
 }
