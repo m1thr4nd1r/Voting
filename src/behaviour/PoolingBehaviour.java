@@ -39,12 +39,49 @@ public class PoolingBehaviour extends SimpleBehaviour {
 	
 	public void pool(String vote, String name)
 	{
-		int i = Integer.valueOf(vote);
+		int i;
 		
-		agent.increment(i);
-		votesLeft--;
+		if (agent.getType().equals("Simple"))
+		{
+			i = Integer.valueOf(vote);
 		
-		System.out.println("Eleitor " + name + " - Vota na opção de numero " + (i+1) + " (" + agent.getOption(i) + "). Total de Votos desta opção: " + agent.getVotes(i));
+			agent.increment(i);
+			votesLeft--;
+			
+			System.out.println("Eleitor " + name + " - Vota na opção de numero " + (i+1) + " (" + agent.getOption(i) + "). Total de Votos desta opção: " + agent.getVotes(i));
+		}
+		else if (agent.getType().equals("Borda"))
+		{
+			int end = vote.length() - 1;
+			int begin = vote.lastIndexOf(' ', end - 1);
+			int count = 1;	
+			String op = "";
+			String points = "";
+			
+			while (begin != -1)
+			{
+				i = Integer.valueOf(vote.substring(begin+1, end));
+				end = begin;
+				begin = vote.lastIndexOf(' ', end - 1);
+				
+				agent.increment(i, count);
+				count++;
+				op = agent.getOption(i) + " " + op;
+				points = String.valueOf(agent.getVotes(i)) + " " + points;
+			}
+			
+			i = Integer.valueOf(vote.substring(0, end));
+			
+			agent.increment(i, count);
+			count++;
+			op = agent.getOption(i) + " " + op;
+			points = String.valueOf(agent.getVotes(i)) + " " + points;
+			
+			votesLeft--;
+			
+			System.out.println("Eleitor " + name + " - Vota na seguinte ordem : " + op);
+			System.out.println("      Pontuação de cada opção      : " + points);
+		}
 	}
 	
 	public String extractNumber(String s)

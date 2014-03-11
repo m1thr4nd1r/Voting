@@ -35,13 +35,14 @@ public class ListenBehaviour extends SimpleBehaviour
 		{
 			if (msg.getConversationId().equals("Start"))
 			{
+				ACLMessage reply = msg.createReply();
+				
 				if (msg.getContent().equals("Simple"))
-				{
-//					System.out.println("Cheguei a ler a mensagem Simple (" + extractNumber(myAgent.getName()) + ")");
-					ACLMessage reply = msg.createReply();
 					reply.setContent(simpleVoting());
-					this.agent.send(reply);
-				}
+				else if (msg.getContent().equals("Borda"))
+					reply.setContent(bordaVoting());
+				
+				this.agent.send(reply);
 			}
 			else if (msg.getConversationId().equals("Done"))
 				this.done = true;
@@ -58,6 +59,18 @@ public class ListenBehaviour extends SimpleBehaviour
 			i++;
 		
 		return i;
+	}
+	
+	private String bordaVoting()
+	{
+		String[] options = agent.getOptions().clone();
+		String[] choice = shuffle(options);
+		String text = "";		
+		
+		for (int i = 0; i < choice.length; i++)
+			text+= String.valueOf(find(choice[i])) + " ";
+				
+		return text;
 	}
 	
 	private String simpleVoting()
