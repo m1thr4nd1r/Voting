@@ -112,12 +112,12 @@ public class ListenBehaviour extends SimpleBehaviour
 			options[i] = options[j];
 			options[j] = temp;
 		}
-		print(options);
+		printVotingOrder(options);
 		
 		return options;
 	}
 	
-	private void print(String[] options)
+	private void printVotingOrder(String[] options)
 	{
 		int i;
 		String text;
