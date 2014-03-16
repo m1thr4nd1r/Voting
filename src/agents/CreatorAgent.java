@@ -24,7 +24,6 @@ public class CreatorAgent extends Agent
 		Object[] args = getArguments();
 		if (args != null && args.length > 0)
 		{
-//			Numero de Açoes, Acão1, Acão2,..., Numero de Agentes
 //			Tipo de Votação,Numero de Açoes, Acão1, Acão2,..., Numero de Agentes
 			
 //			Extraindo tipo de votação
