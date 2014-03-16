@@ -49,11 +49,11 @@ public class CreatorAgent extends Agent
 			Runtime rt = Runtime.instance();
 			Profile p = new ProfileImpl();
 			ContainerController agentContainer = rt.createAgentContainer(p);
-			String[] voterOptions = options.clone();
 			
 //			Criando agentes
 			for (int i = 0; i < agentQnt; i++)
 			{
+				String[] voterOptions = options.clone();
 				try {
 					AgentController ac = agentContainer.createNewAgent("VoterAgent"+(i+1), "agents.VoterAgent", voterOptions);
 					ac.start();
@@ -65,14 +65,16 @@ public class CreatorAgent extends Agent
 			
 			printOptions();
 			
-			this.addBehaviour(new PoolingBehaviour(this, agentQnt));
-			this.addBehaviour(new StartBehaviour(this, type, agentQnt));
+			this.addBehaviour(new PoolingBehaviour(this));
+			this.addBehaviour(new StartBehaviour(this, "Start", type, agentQnt));
 		}
 	}
 	
 	protected void takeDown() 
 	{
-		if (type.equals("Simple"))
+		System.out.println();
+		
+		if (type.equals("Plurality") || type.equals("Sequential"))
 		{
 			int max = 0;
 			int winner = -1;
@@ -121,6 +123,22 @@ public class CreatorAgent extends Agent
 		return options[index];
 	}
 	
+	public int getAgentQnt() {
+		return agentQnt;
+	}
+
+	public int getOptionQnt() {
+		return optionQnt;
+	}
+
+	public String[] getOptions() {
+		return options;
+	}
+
+	public int[] getVotes() {
+		return votes;
+	}
+
 	public int getVotes(int index)
 	{
 		return votes[index];
@@ -140,12 +158,18 @@ public class CreatorAgent extends Agent
 		votes[index]+= amount;
 	}
 	
+	public void resetVotes()
+	{
+		for (int i = 0; i < options.length; i++)
+			votes[i] = 0;
+	}
+	
 	public void printOptions()
 	{
 		String op = "Opcoes: ";
 		for (int i = 0; i < options.length; i++)
 			op+= options[i] + " ";
 		
-		System.out.println(op);
+		System.out.println(op + "\n");
 	}
 }

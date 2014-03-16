@@ -37,11 +37,19 @@ public class ListenBehaviour extends SimpleBehaviour
 			{
 				ACLMessage reply = msg.createReply();
 				
-				if (msg.getContent().equals("Simple"))
-					reply.setContent(simpleVoting());
+				if (msg.getContent().equals("Plurality"))
+					reply.setContent(pluralityVoting());
 				else if (msg.getContent().equals("Borda"))
 					reply.setContent(bordaVoting());
+				else if (msg.getContent().equals("Sequential"))
+					reply.setContent(pluralityVoting());
 				
+				this.agent.send(reply);
+			}
+			else if (msg.getConversationId().equals("Turn"))
+			{
+				ACLMessage reply = msg.createReply();
+				reply.setContent(pluralityVoting(msg.getContent()));	
 				this.agent.send(reply);
 			}
 			else if (msg.getConversationId().equals("Done"))
@@ -63,29 +71,38 @@ public class ListenBehaviour extends SimpleBehaviour
 	
 	private String bordaVoting()
 	{
-		String[] options = agent.getOptions().clone();
-		String[] choice = shuffle(options);
+		String[] choice = shuffle(agent.getOptions());
 		String text = "";		
 		
 		for (int i = 0; i < choice.length; i++)
-			text+= String.valueOf(find(choice[i])) + " ";
+			text+= choice[i] + " ";
 				
 		return text;
 	}
 	
-	private String simpleVoting()
+	private String pluralityVoting(String content)
 	{
-//		System.out.println("Cheguei no simpleVoting (" + extractNumber(myAgent.getName()) + ")");
-		String[] options = agent.getOptions().clone();
-		String choice = shuffle(options)[0];
+		String[] options = agent.getOptions();
+		int middle = content.indexOf(' ');
 		
-		return String.valueOf(find(choice));
+		String new_options[] = { content.substring(0, middle), content.substring(middle+1) };
+		
+		int i = 0;
+		
+		while(!options[i].equals(new_options[0]) && !options[i].equals(new_options[1]))
+			i++;
+		
+		return options[i];
+	}
+	
+	private String pluralityVoting()
+	{
+		return shuffle(agent.getOptions())[0];
 	}
 	
 	private String[] shuffle(String[] options)
 	{
 		int i,j;
-//		System.out.println("Cheguei no shuffle (" + extractNumber(myAgent.getName()) + ")");
 		Random generator = new Random();
 		
 		for (i = options.length - 1; i > 0; i--)

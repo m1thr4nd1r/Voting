@@ -12,22 +12,23 @@ import jade.lang.acl.ACLMessage;
 @SuppressWarnings("serial")
 public class StartBehaviour extends OneShotBehaviour
 {
-	private String type;
+	private String content, id;
 	private int agents;
 	
-	public StartBehaviour(Agent a, String type, int agents)
+	public StartBehaviour(Agent a, String id, String content, int agents)
 	{
 		this.myAgent = a;
-		this.type = type;
+		this.content = content;
 		this.agents = agents;
+		this.id = id;
 	}
 	
 	@Override
 	public void action() 
 	{
 		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-		msg.setConversationId("Start");
-		msg.setContent(type);
+		msg.setConversationId(id);
+		msg.setContent(content);
 		
 		addReceivers("voter", msg, agents);
 		
@@ -43,8 +44,6 @@ public class StartBehaviour extends OneShotBehaviour
         
         SearchConstraints ALL = new SearchConstraints();
         ALL.setMaxResults(new Long(-1));
-
-//        System.out.println("Enviando mensagem");
         
         try
         {
@@ -54,10 +53,7 @@ public class StartBehaviour extends OneShotBehaviour
             	result = DFService.search(myAgent, dfd, ALL);
                         
             for (int i=0; i<result.length; i++)
-            {
                 msg.addReceiver(result[i].getName());
-//                System.out.println("Destinatario: " + result[i].getName());
-            }
 
         }
         catch (FIPAException fe) { fe.printStackTrace(); }
