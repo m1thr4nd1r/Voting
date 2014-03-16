@@ -70,54 +70,6 @@ public class CreatorAgent extends Agent
 		}
 	}
 	
-	protected void takeDown() 
-	{
-		System.out.println();
-		
-		if (type.equals("Plurality") || type.equals("Sequential"))
-		{
-			int max = 0;
-			int winner = -1;
-			
-			for (int i = 0; i < optionQnt; i++)
-			{
-				if (votes[i] > max)
-				{
-					max = votes[i];
-					winner = i;
-				}
-			}
-			
-			System.out.println("O ganhador da eleição é '" + options[winner] + "' com " + max + " votos");
-		}
-		else if (type.equals("Borda"))
-		{
-			for (int i = 0; i < optionQnt; i++)
-				for (int j = 0; j < optionQnt; j++)
-					if (votes[i] > votes[j])
-					{
-						int tempI = votes[i];
-						String tempS = options[i];
-						
-						votes[i] = votes[j];
-						options[i] = options[j];
-						
-						votes[j] = tempI;
-						options[j] = tempS;
-					}
-			
-			System.out.print("A eleição determinou a seguinte prioridade: ");
-						
-			for (int i = 0; i < optionQnt; i++)
-				System.out.print(options[i] + " ");
-			
-			System.out.print("\n   Cada opção teve a seguinte pontuação   : ");
-			
-			for (int i = 0; i < optionQnt; i++)
-				System.out.print(votes[i] + " ");
-		}
-	}
-	
 	public String getOption(int index)
 	{
 		return options[index];

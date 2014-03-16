@@ -177,6 +177,28 @@ public class PoolingBehaviour extends SimpleBehaviour {
 	
 	public int onEnd()
 	{
+		System.out.println();
+		
+		if (agent.getType().equals("Plurality") || agent.getType().equals("Sequential"))
+		{
+			orderOptions();			
+			System.out.println("O ganhador da eleição é '" + agent.getOption(0) + "' com " + agent.getVotes(0) + " votos");
+		}
+		else if (agent.getType().equals("Borda"))
+		{
+			orderOptions();	
+			
+			System.out.print("A eleição determinou a seguinte prioridade: ");
+						
+			for (int i = 0; i < agent.getOptionQnt(); i++)
+				System.out.print(agent.getOption(i) + " ");
+			
+			System.out.print("\n   Cada opção teve a seguinte pontuação   : ");
+			
+			for (int i = 0; i < agent.getOptionQnt(); i++)
+				System.out.print(agent.getVotes(i) + " ");
+		}		
+		
 		agent.doDelete();
 		myAgent.doDelete();
 		return 0;
