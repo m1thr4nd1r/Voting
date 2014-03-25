@@ -94,7 +94,7 @@ public class VotingGui extends JFrame {
 		gbc_btnNewOpcao.gridy = 1;
 		contentPane.add(btnNewOpcao, gbc_btnNewOpcao);
 		
-		btnNewOpcao.addActionListener(new Opção(1,contentPane,options));
+		btnNewOpcao.addActionListener(new Opcao(1,contentPane,options));
 		
 		comboBox = new JComboBox<String>();
 		comboBox.setToolTipText("Selecione o tipo de vota\u00E7\u00E3o que deseja");
@@ -183,13 +183,13 @@ public class VotingGui extends JFrame {
 	}
 }
 
-class Opção implements ActionListener
+class Opcao implements ActionListener
 {
 	private int previousY;
 	private JPanel contentPane;
 	private List<JTextField> fields;
 	
-	Opção(int previousY, JPanel panel, List<JTextField> f){
+	Opcao(int previousY, JPanel panel, List<JTextField> f){
         super();
         this.previousY = previousY;
         this.contentPane = panel;
