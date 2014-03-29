@@ -151,6 +151,7 @@ public class VotingGui extends JFrame {
 		contentPane.add(txtAgentesComFalha, gbc_txtAgentesComFalha);
 		
 		buggyAgents = new JTextField();
+		buggyAgents.setHorizontalAlignment(SwingConstants.CENTER);
 		GridBagConstraints gbc_buggyAgents = new GridBagConstraints();
 		gbc_buggyAgents.insets = new Insets(0, 0, 20, 5);
 		gbc_buggyAgents.gridx = 0;
