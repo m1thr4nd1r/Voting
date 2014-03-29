@@ -31,6 +31,7 @@ import java.awt.Font;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JCheckBox;
 
 @SuppressWarnings("serial")
 public class VotingGui extends JFrame {
@@ -42,6 +43,9 @@ public class VotingGui extends JFrame {
 	private JTextField agentQnt;
 	private JComboBox<String> comboBox;
 	private JButton btnStart;
+	private JTextField txtAgentesComFalha;
+	private JCheckBox chckbxExisteFalha;
+	private JTextField buggyAgents;
 	
 	/**
 	 * Launch the application.
@@ -63,15 +67,15 @@ public class VotingGui extends JFrame {
 	 * Create the frame.
 	 */
 	public VotingGui() {
-		setBounds(100, 100, 550, 300);
+		setBounds(100, 100, 550, 400);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[]{0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_contentPane.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		options = new ArrayList<JTextField>();		
 		
@@ -127,19 +131,47 @@ public class VotingGui extends JFrame {
 		contentPane.add(agentQnt, gbc_agentQnt);
 		agentQnt.setColumns(10);
 		
+		chckbxExisteFalha = new JCheckBox("Existe falha na vota\u00E7\u00E3o ?");
+		GridBagConstraints gbc_chckbxExisteFalha = new GridBagConstraints();
+		gbc_chckbxExisteFalha.insets = new Insets(0, 0, 20, 5);
+		gbc_chckbxExisteFalha.gridx = 0;
+		gbc_chckbxExisteFalha.gridy = 5;
+		contentPane.add(chckbxExisteFalha, gbc_chckbxExisteFalha);
+		
+		txtAgentesComFalha = new JTextField();
+		txtAgentesComFalha.setText("Agentes com falha (separados por virgula):");
+		txtAgentesComFalha.setHorizontalAlignment(SwingConstants.CENTER);
+		txtAgentesComFalha.setEditable(false);
+		txtAgentesComFalha.setColumns(10);
+		GridBagConstraints gbc_txtAgentesComFalha = new GridBagConstraints();
+		gbc_txtAgentesComFalha.insets = new Insets(0, 0, 20, 5);
+		gbc_txtAgentesComFalha.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtAgentesComFalha.gridx = 0;
+		gbc_txtAgentesComFalha.gridy = 6;
+		contentPane.add(txtAgentesComFalha, gbc_txtAgentesComFalha);
+		
+		buggyAgents = new JTextField();
+		GridBagConstraints gbc_buggyAgents = new GridBagConstraints();
+		gbc_buggyAgents.insets = new Insets(0, 0, 20, 5);
+		gbc_buggyAgents.gridx = 0;
+		gbc_buggyAgents.gridy = 7;
+		contentPane.add(buggyAgents, gbc_buggyAgents);
+		buggyAgents.setColumns(10);
+		
 		btnStart = new JButton("Start");
 		btnStart.setForeground(new Color(0, 0, 0));
 		btnStart.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		GridBagConstraints gbc_btnStart = new GridBagConstraints();
 		gbc_btnStart.insets = new Insets(0, 0, 0, 5);
 		gbc_btnStart.gridx = 0;
-		gbc_btnStart.gridy = 5;
+		gbc_btnStart.gridy = 8;
 		contentPane.add(btnStart, gbc_btnStart);
 		
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				String[] voterOptions = new String[options.size()+3];				
+				String[] bugAgents = getBuggyAgents().split(",");
+				String[] voterOptions = new String[options.size()+bugAgents.length+4];				
 				
 				String t = getVotingType();
 				
@@ -150,15 +182,17 @@ public class VotingGui extends JFrame {
 				else
 					voterOptions[0] = t;
 				
-				voterOptions[1] = String.valueOf(options.size());
+				voterOptions[1] = String.valueOf(getAgentQnt());
+				
+				voterOptions[2] = String.valueOf(options.size());
 				
 				for (int i = 0; i < options.size(); i++)
-					voterOptions[i+2] = options.get(i).getText();
+					voterOptions[i+3] = options.get(i).getText();
 				
-				voterOptions[voterOptions.length - 1] = String.valueOf(getAgentQnt()); 
+				voterOptions[options.size() + 3] = String.valueOf(getFalha());
 				
-//				for (int i = 0; i < voterOptions.length; i++)
-//					System.out.println(voterOptions[i]);
+				for (int i = 0; i < bugAgents.length; i++)
+					voterOptions[options.size() + 4] = bugAgents[i];
 				
 				Runtime rt = Runtime.instance();
 				Profile p = new ProfileImpl();
@@ -181,6 +215,12 @@ public class VotingGui extends JFrame {
 	public int getAgentQnt() {
 		return Integer.valueOf(agentQnt.getText());
 	}
+	public String getFalha() {
+		return String.valueOf(chckbxExisteFalha.isSelected());
+	}
+	public String getBuggyAgents() {
+		return buggyAgents.getText();
+	}
 }
 
 class Opcao implements ActionListener
@@ -199,19 +239,22 @@ class Opcao implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// create the new text field
-		previousY+=1;
+		if (previousY < 7)
+		{
+			previousY+=1;
 				
-		JTextField opcao = new JTextField();
-		opcao.setHorizontalAlignment(SwingConstants.CENTER);
-	    GridBagConstraints gbc_txtOpcao = new GridBagConstraints();
-		gbc_txtOpcao.insets = new Insets(0, 0, 20, 5);
-		gbc_txtOpcao.gridx = 1;
-		gbc_txtOpcao.gridy = previousY;
-		contentPane.add(opcao, gbc_txtOpcao);
-		opcao.setColumns(10);
-	    fields.add(opcao);		
-		
-	    contentPane.validate();
-	    contentPane.repaint();		
+			JTextField opcao = new JTextField();
+			opcao.setHorizontalAlignment(SwingConstants.CENTER);
+		    GridBagConstraints gbc_txtOpcao = new GridBagConstraints();
+			gbc_txtOpcao.insets = new Insets(0, 0, 20, 5);
+			gbc_txtOpcao.gridx = 1;
+			gbc_txtOpcao.gridy = previousY;
+			contentPane.add(opcao, gbc_txtOpcao);
+			opcao.setColumns(10);
+		    fields.add(opcao);		
+			
+		    contentPane.validate();
+		    contentPane.repaint();		
+		}
 	}
 }
