@@ -42,7 +42,7 @@ public class CreatorAgent extends Agent
 			
 //			Extraindo opcoes disponiveis
 			for (int i = 0; i < optionQnt; i++)
-				options[i] = (String) args[i+2];
+				options[i] = (String) args[i+3];
 			
 //			Extraindo se a falha esta presente
 			receive = !Boolean.parseBoolean((String) args[optionQnt+3]);
