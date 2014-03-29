@@ -29,7 +29,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		{
 			if (msg.getConversationId().equals("Start"))
 			{
-				pool(msg.getContent(), extractNumber(msg.getSender().getName()));
+				pool(msg.getContent(), agent.extractNumber(msg.getSender().getName()));
 				
 				if (!agent.getType().equals("Sequential"))
 				{
@@ -42,7 +42,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 			}
 			else if (msg.getConversationId().equals("Turn"))
 			{
-				pool(msg.getContent(), extractNumber(msg.getSender().getName()));
+				pool(msg.getContent(), agent.extractNumber(msg.getSender().getName()));
 				
 				ACLMessage reply = msg.createReply();
 				reply.setConversationId("Done");
@@ -63,14 +63,6 @@ public class PoolingBehaviour extends SimpleBehaviour {
 			sequentialPooling(vote,name);
 	}
 	
-	public String extractNumber(String s)
-	{
-		int end = s.indexOf('@',0);
-		int begin = s.lastIndexOf('t', end);
-		
-		return s.substring(begin + 1, end);
-	}
-
 	public int find(String vote)
 	{
 		int i = 0;
