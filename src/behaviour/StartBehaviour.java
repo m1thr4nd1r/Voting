@@ -29,6 +29,7 @@ public class StartBehaviour extends OneShotBehaviour
 	@Override
 	public void action() 
 	{
+		System.out.println("-------------- Inicio do Round " + agent.getRound() + " --------------");
 		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 		msg.setConversationId(id);
 		msg.setContent(content);

@@ -27,23 +27,21 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		
 		while (msg != null && msg.getConversationId() != null)
 		{
+			pool(msg.getContent(), agent.extractNumber(msg.getSender().getName()));
+			
 			if (msg.getConversationId().equals("Start"))
 			{
-				pool(msg.getContent(), agent.extractNumber(msg.getSender().getName()));
-				
-				if (!agent.getType().equals("Sequential"))
+				if (!agent.getType().equals("Sequential") && agent.getRound() == agent.getRounds())
 				{
 					ACLMessage reply = msg.createReply();
 					reply.setConversationId("Done");
 					agent.send(reply);
 				}
 				else if (turn > 1)
-					this.agent.addBehaviour(new StartBehaviour(this.myAgent, "Turn", agent.getOption(0) + " " + agent.getOption(1), agent.getAgentQnt()));
+					this.agent.addBehaviour(new StartBehaviour(this.agent, "Turn", agent.getOption(0) + " " + agent.getOption(1), agent.getAgentQnt()));
 			}
-			else if (msg.getConversationId().equals("Turn"))
+			else if (msg.getConversationId().equals("Turn") && agent.getRound() == agent.getRounds())
 			{
-				pool(msg.getContent(), agent.extractNumber(msg.getSender().getName()));
-				
 				ACLMessage reply = msg.createReply();
 				reply.setConversationId("Done");
 				agent.send(reply);
@@ -174,7 +172,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		if (agent.getType().equals("Plurality") || agent.getType().equals("Sequential"))
 		{
 			orderOptions();			
-			System.out.println("O ganhador da eleição é '" + agent.getOption(0) + "' com " + agent.getVotes(0) + " votos");
+			System.out.print("O ganhador da eleição é '" + agent.getOption(0) + "' com " + agent.getVotes(0) + " votos");
 		}
 		else if (agent.getType().equals("Borda"))
 		{
@@ -191,8 +189,23 @@ public class PoolingBehaviour extends SimpleBehaviour {
 				System.out.print(agent.getVotes(i) + " ");
 		}		
 		
-		agent.doDelete();
-		myAgent.doDelete();
+		System.out.println("\nTempo de execução: " + agent.getTime() + " milisegundos");
+		System.out.println("-------------- Termino do Round " + agent.getRound() + " --------------\n");
+		
+		if (agent.getRound() == agent.getRounds())
+		{
+			agent.doDelete();
+			myAgent.doDelete();
+		}
+		else
+		{
+			agent.resetVotes();
+			agent.incrementRound();
+			agent.setStartTime();
+			agent.addBehaviour(new PoolingBehaviour(agent));
+			agent.addBehaviour(new StartBehaviour(agent, "Start", agent.getType(), agent.getAgentQnt()));
+		}
+		
 		return 0;
 	}
 }

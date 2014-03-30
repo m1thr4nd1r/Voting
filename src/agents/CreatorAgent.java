@@ -20,6 +20,9 @@ public class CreatorAgent extends Agent
 	private String buggy = "";
 	private String type = null;
 	private boolean receive;
+	private long startTime;
+	private int round = 1;
+	private int rounds = 2;
 	
 	protected void setup()
 	{
@@ -44,12 +47,12 @@ public class CreatorAgent extends Agent
 			for (int i = 0; i < optionQnt; i++)
 				options[i] = (String) args[i+3];
 			
-//			Extraindo se a falha esta presente
+//			Extraindo se todos os agentes devem receber a mensagem (a falha nao esta presente)
 			receive = !Boolean.parseBoolean((String) args[optionQnt+3]);
 
-			for (int i = optionQnt + 3; i < args.length; i++)
+			for (int i = optionQnt + 4; i < args.length; i++)
 				buggy += (String) args[i] + " ";
-				
+			
 //			Criando variaveis necessarias a criacao de um novo agente (em um novo container)
 			Runtime rt = Runtime.instance();
 			Profile p = new ProfileImpl();
@@ -70,6 +73,8 @@ public class CreatorAgent extends Agent
 			}
 			
 			printOptions();
+			
+			this.setStartTime();
 			
 			this.addBehaviour(new PoolingBehaviour(this));
 			this.addBehaviour(new StartBehaviour(this, "Start", type, agentQnt));
@@ -133,7 +138,7 @@ public class CreatorAgent extends Agent
 	public boolean isBuggy(String name)
 	{
 //		Verdadeiro quando o agente pertence ao grupo de agentes com falha, e a falha tambem esta presente
-		return buggy.contains(name) && !receive;
+		return buggy.contains(name) && !receive && round > 1;
 	}
 	
 	public void printOptions()
@@ -143,5 +148,27 @@ public class CreatorAgent extends Agent
 			op+= options[i] + " ";
 		
 		System.out.println(op + "\n");
+	}
+	
+	public void setStartTime()
+	{
+		startTime = System.currentTimeMillis();
+	}
+	
+	public long getTime()
+	{
+		return System.currentTimeMillis() - startTime;
+	}
+
+	public int getRound() {
+		return round;
+	}
+
+	public void incrementRound() {
+		this.round++;
+	}
+
+	public int getRounds() {
+		return rounds;
 	}
 }
