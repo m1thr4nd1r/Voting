@@ -194,6 +194,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		
 		if (agent.getRound() == agent.getRounds())
 		{
+			System.out.println("Tempo de execução total: " + agent.getTotalTime() + " milisegundos");
 			agent.doDelete();
 			myAgent.doDelete();
 		}

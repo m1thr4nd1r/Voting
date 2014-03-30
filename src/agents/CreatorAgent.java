@@ -21,6 +21,7 @@ public class CreatorAgent extends Agent
 	private String type = null;
 	private boolean receive;
 	private long startTime;
+	private long totalTime;
 	private int round = 1;
 	private int rounds = 2;
 	
@@ -155,9 +156,16 @@ public class CreatorAgent extends Agent
 		startTime = System.currentTimeMillis();
 	}
 	
+	public long getTotalTime()
+	{
+		return totalTime;
+	}
+	
 	public long getTime()
 	{
-		return System.currentTimeMillis() - startTime;
+		long time = System.currentTimeMillis() - startTime;
+		totalTime += time;
+		return time;
 	}
 
 	public int getRound() {
