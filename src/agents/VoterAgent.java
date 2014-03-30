@@ -1,5 +1,7 @@
 package agents;
 
+import java.util.Random;
+
 import behaviour.ListenBehaviour;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -28,6 +30,8 @@ public class VoterAgent extends Agent
 	    }
 	    catch (FIPAException fe) { fe.printStackTrace(); }
 		
+		shuffle(options);
+		
 		this.addBehaviour(new ListenBehaviour(this));
 	}
 
@@ -46,6 +50,22 @@ public class VoterAgent extends Agent
 	{
 		return options[index];
 	}
+	
+	private String[] shuffle(String[] options)
+	{
+		int i,j;
+		Random generator = new Random();
+		
+		for (i = options.length - 1; i > 0; i--)
+		{
+			j = generator.nextInt(i);
+			String temp = options[i];
+			options[i] = options[j];
+			options[j] = temp;
+		}
+		
+		return options;
+	}	
 	
 //	Needed for testing
 	public void setOptions(String[] op)
