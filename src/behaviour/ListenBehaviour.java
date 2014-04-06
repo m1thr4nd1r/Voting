@@ -126,7 +126,7 @@ public class ListenBehaviour extends SimpleBehaviour
 		int i;
 		String text;
 		
-		text = "Ordem de prioridade das opções do eleitor " + extractNumber(myAgent.getName()) + " : ";
+		text = "Ordem de prioridade das opcoes do eleitor " + extractNumber(myAgent.getName()) + " : ";
 		for (i = 0; i < options.length; i++)
 			text+= options[i] + " ";
 		

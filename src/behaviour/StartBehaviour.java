@@ -29,8 +29,17 @@ public class StartBehaviour extends OneShotBehaviour
 	@Override
 	public void action() 
 	{
-		System.out.println("-------------- Inicio do Round " + agent.getRound() + " --------------");
-		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+		ACLMessage msg;
+		
+		if (this.id.equals("Done"))
+			msg = new ACLMessage(ACLMessage.INFORM);
+		else
+		{
+			if (!this.id.equals("Turn"))
+				System.out.println("-------------- Inicio do Round " + agent.getRound() + " --------------");
+			msg = new ACLMessage(ACLMessage.REQUEST);
+		}
+		
 		msg.setConversationId(id);
 		msg.setContent(content);
 		
@@ -58,10 +67,20 @@ public class StartBehaviour extends OneShotBehaviour
             
             for (int i=0; i<result.length; i++)
 //            	Caso o agente pertença aos agentes com falhas
-            	if (!agent.isBuggy(agent.extractNumber(result[i].getName().getName())))
+            	if (!agent.isFlawed(agent.extractNumber(result[i].getName().getName())) || this.id.equals("Done"))
             		msg.addReceiver(result[i].getName());
 
         }
         catch (FIPAException fe) { fe.printStackTrace(); }
     }
+	
+	public int onEnd()
+	{
+		if (this.id.equals("Done"))
+		{
+			agent.doDelete();
+			myAgent.doDelete();
+		}
+		return 0;		
+	}
 }

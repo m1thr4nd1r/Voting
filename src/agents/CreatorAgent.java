@@ -1,5 +1,10 @@
 package agents;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Random;
+
 import behaviour.PoolingBehaviour;
 import behaviour.StartBehaviour;
 import jade.core.Agent;
@@ -17,20 +22,30 @@ public class CreatorAgent extends Agent
 	private int agentQnt = 0;
 	private String[] options = null;
 	private int[] votes = null;
-	private String buggy = "";
+	private String flawed = "";
 	private String type = null;
 	private boolean receive;
-	private long startTime;
-	private long totalTime;
 	private int round = 1;
-	private int rounds = 2;
+	private int rounds = 100;
+	private long startTime, totalTime;
+	PrintWriter writer;
+
+//	Tempo medio (Pluralidade) = ( / 10) * 2 = ~ (3 Agentes)
+//	Tempo medio (Borda) = ( / 10) * 2 = ~ (3 Agentes)
+//	Tempo medio (Sequencial) = ( / 10) * 2 = ~ (3 Agentes)
+
+//	Tempo medio (Pluralidade) = (227 / 10) * 2 = 45~ (10 Agentes)	
+//	Tempo medio (Borda) = (237 / 10) * 2 = ~47 (10 Agentes)
+//	Tempo medio (Sequencial) = (380 / 10) * 2 = ~76 (10 Agentes)
 	
+	private int[] timeOut = {45, 47, 76};
+			
 	protected void setup()
 	{
 		Object[] args = getArguments();
 		if (args != null && args.length > 0)
 		{
-// 			Tipo Votacao, Qtd Agentes, Qtd Acoes, Acao(1-N), Falha presente, Agente Falho (1-N)
+//			Tipo Votacao, Qtd Agentes, Qtd Acoes, Acao(1-N), Falha presente
 			
 //			Extraindo tipo de votacao
 			type = (String) args[0];
@@ -51,8 +66,8 @@ public class CreatorAgent extends Agent
 //			Extraindo se todos os agentes devem receber a mensagem (a falha nao esta presente)
 			receive = !Boolean.parseBoolean((String) args[optionQnt+3]);
 
-			for (int i = optionQnt + 4; i < args.length; i++)
-				buggy += (String) args[i] + " ";
+			if (!receive)
+				this.rounds++;
 			
 //			Criando variaveis necessarias a criacao de um novo agente (em um novo container)
 			Runtime rt = Runtime.instance();
@@ -73,13 +88,26 @@ public class CreatorAgent extends Agent
 				}
 			}
 			
-			printOptions();
+			printOptions();			
 			
+			try {
+				writer = new PrintWriter("data.csv", "UTF-8");				
+			} catch (FileNotFoundException | UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+			
+			beginWriting();
 			this.setStartTime();
 			
 			this.addBehaviour(new PoolingBehaviour(this));
 			this.addBehaviour(new StartBehaviour(this, "Start", type, agentQnt));
 		}
+	}
+	
+	protected void takeDown() 
+	{
+		writer.close();
 	}
 	
 	public String getOption(int index)
@@ -136,10 +164,27 @@ public class CreatorAgent extends Agent
 		return s.substring(begin + 1, end);
 	}
 	
-	public boolean isBuggy(String name)
+	public String getFlawed()
+	{
+		return this.flawed;
+	}
+	
+	public boolean isFlawed(String name)
 	{
 //		Verdadeiro quando o agente pertence ao grupo de agentes com falha, e a falha tambem esta presente
-		return buggy.contains(name) && !receive && round > 1;
+		return flawed.contains(name) && !receive && round > 1;
+	}
+	
+	public void clearFlawed()
+	{
+		this.flawed = "";
+	}
+	
+	public void chooseFlawed()
+	{
+		Random r = new Random();
+		this.flawed = Integer.toString(r.nextInt(agentQnt) + 1);
+		System.out.println("Agente falho: " + flawed);
 	}
 	
 	public void printOptions()
@@ -167,7 +212,57 @@ public class CreatorAgent extends Agent
 		totalTime += time;
 		return time;
 	}
+	
+	public int getTimeOut()
+	{
+		switch (this.type)
+		{
+			case "Plurality" :
+								return timeOut[0];
+			case "Borda" : 
+								return timeOut[1];
+			case "Sequential" :
+								return timeOut[2];
+			default :
+								return -1;
+		}
+	}
 
+	public void beginWriting()
+	{
+		String txt = "";
+		
+		if (!type.equals("Borda"))
+		{	
+			txt = "ganhador;";
+			
+			for (int i = 0; i < agentQnt; i++)
+				txt += "agente"+(i+1)+";";
+			
+			if (type.equals("Sequential"))
+				txt+= "turno;";
+			
+			txt += "falha;\n";
+		}
+		else
+		{
+			for (int i = 0; i < optionQnt; i++)
+				txt += "prioridade "+(i+1)+";";
+			
+			for (int i = 0; i < agentQnt; i++)
+				txt += "agente"+(i+1)+";";
+			
+			txt += "falha;\n";
+		}
+		
+		writeToFile(txt);
+	}
+	
+	public void writeToFile(String txt)
+	{
+		this.writer.print(txt);
+	}
+	
 	public int getRound() {
 		return round;
 	}
@@ -178,5 +273,10 @@ public class CreatorAgent extends Agent
 
 	public int getRounds() {
 		return rounds;
+	}
+	
+	public boolean isReceiving()
+	{
+		return receive;
 	}
 }
