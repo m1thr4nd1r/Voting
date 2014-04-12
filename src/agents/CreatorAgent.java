@@ -173,7 +173,7 @@ public class CreatorAgent extends Agent
 	public boolean isFlawed(String name)
 	{
 //		Verdadeiro quando o agente pertence ao grupo de agentes com falha, e a falha tambem esta presente
-		return flawed.contains(name) && !receive && round > 1;
+		return flawed.contains(name + " ") && !receive && round > 1;
 	}
 	
 	public void clearFlawed()
