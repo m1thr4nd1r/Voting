@@ -25,7 +25,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		this.votes = new String[votesLeft];
 		
 		if (!this.agent.isReceiving() && agent.getRound() > 1)
-			votesLeft--;
+			votesLeft-= agent.getFlawedQnt();
 	}
 	
 	@Override

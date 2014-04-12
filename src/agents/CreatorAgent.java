@@ -23,10 +23,11 @@ public class CreatorAgent extends Agent
 	private String[] options = null;
 	private int[] votes = null;
 	private String flawed = "";
+	private int flawedQnt = 2;
 	private String type = null;
 	private boolean receive;
 	private int round = 1;
-	private int rounds = 100;
+	private int rounds = 2;
 	private long startTime, totalTime;
 	PrintWriter writer;
 
@@ -91,7 +92,7 @@ public class CreatorAgent extends Agent
 			printOptions();			
 			
 			try {
-				writer = new PrintWriter("data.csv", "UTF-8");				
+				writer = new PrintWriter(type + ".csv", "UTF-8");				
 			} catch (FileNotFoundException | UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -183,8 +184,16 @@ public class CreatorAgent extends Agent
 	public void chooseFlawed()
 	{
 		Random r = new Random();
-		this.flawed = Integer.toString(r.nextInt(agentQnt) + 1);
-		System.out.println("Agente falho: " + flawed);
+		for (int i = 0; i < flawedQnt; i++)
+		{
+			String buggy = Integer.toString(r.nextInt(agentQnt) + 1);
+			
+			while (this.flawed.contains(buggy))
+				buggy = Integer.toString(r.nextInt(agentQnt) + 1);
+			
+			this.flawed += buggy + " ";
+		}
+		System.out.println("Agente(s) falho(s): " + flawed);
 	}
 	
 	public void printOptions()
@@ -278,5 +287,9 @@ public class CreatorAgent extends Agent
 	public boolean isReceiving()
 	{
 		return receive;
+	}
+
+	public int getFlawedQnt() {
+		return flawedQnt;
 	}
 }
