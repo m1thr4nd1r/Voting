@@ -33,30 +33,29 @@ public class ListenBehaviour extends SimpleBehaviour
 		
 		while (msg != null && msg.getConversationId() != null)
 		{
-			if (msg.getConversationId().equals("Start"))
-			{
-				ACLMessage reply = msg.createReply();
-				
-				printVotingOrder(agent.getOptions());
-				
-				if (msg.getContent().equals("Plurality"))
-					reply.setContent(pluralityVoting());
-				else if (msg.getContent().equals("Borda"))
-					reply.setContent(bordaVoting());
-				else if (msg.getContent().equals("Sequential"))
-					reply.setContent(pluralityVoting());
-				
-				this.agent.send(reply);
-			}
-			else if (msg.getConversationId().equals("Turn"))
-			{
-				ACLMessage reply = msg.createReply();
-				reply.setContent(pluralityVoting(msg.getContent()));	
-				this.agent.send(reply);
-			}
-			else if (msg.getConversationId().equals("Done"))
-				this.done = true;
+			ACLMessage reply = msg.createReply();
 			
+			if (!msg.getConversationId().equals("Done"))
+			{
+				printVotingOrder(agent.getOptions());
+						
+				if (msg.getConversationId().equals("Plurality"))
+					reply.setContent(pluralityVoting());
+				else if (msg.getConversationId().equals("Borda"))
+					reply.setContent(bordaVoting());
+				else if (msg.getConversationId().equals("Sequential"))
+					reply.setContent(sequentialVoting(msg.getContent()));
+			}
+//			else if (msg.getConversationId().equals("Turn"))
+//			{
+//				reply.setContent(pluralityVoting(msg.getContent()));	
+//				this.agent.send(reply);
+//			}
+			else
+				this.done = true;
+						
+			this.agent.send(reply);
+						
 			msg = agent.receive();
 		}		
 	}
@@ -83,10 +82,10 @@ public class ListenBehaviour extends SimpleBehaviour
 		return text;
 	}
 	
-	private String pluralityVoting(String content)
+	private String sequentialVoting(String content)
 	{
 		String[] options = agent.getOptions();
-		int middle = content.indexOf(' ');
+		int middle = content.indexOf(" ");
 		
 		String new_options[] = { content.substring(0, middle), content.substring(middle+1) };
 		

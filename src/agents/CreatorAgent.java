@@ -26,8 +26,8 @@ public class CreatorAgent extends Agent
 	private int flawedQnt = 2;
 	private String type = null;
 	private boolean receive;
-	private int round = 1;
-	private int rounds = 2;
+	private int round = 1;	
+	private int rounds = 100;
 	private long startTime, totalTime;
 	PrintWriter writer;
 
@@ -37,9 +37,9 @@ public class CreatorAgent extends Agent
 
 //	Tempo medio (Pluralidade) = (227 / 10) * 2 = 45~ (10 Agentes)	
 //	Tempo medio (Borda) = (237 / 10) * 2 = ~47 (10 Agentes)
-//	Tempo medio (Sequencial) = (380 / 10) * 2 = ~76 (10 Agentes)
+//	Tempo medio (Sequencial) = (416 / 10) * 2 = ~83 (10 Agentes)
 	
-	private int[] timeOut = {45, 47, 76};
+	private int[] timeOut = {45, 47, 83};
 			
 	protected void setup()
 	{
@@ -102,7 +102,7 @@ public class CreatorAgent extends Agent
 			this.setStartTime();
 			
 			this.addBehaviour(new PoolingBehaviour(this));
-			this.addBehaviour(new StartBehaviour(this, "Start", type, agentQnt));
+			this.addBehaviour(new StartBehaviour(this, type, options[0] + " " + options[1], agentQnt));
 		}
 	}
 	
@@ -155,6 +155,15 @@ public class CreatorAgent extends Agent
 	{
 		for (int i = 0; i < options.length; i++)
 			votes[i] = 0;
+	}
+	
+	public void resetVote(String option)
+	{
+		int i = 0;
+		while (i < options.length && !options[i].equals(option))
+			i++;
+		
+		votes[i] = 0;
 	}
 	
 	public String extractNumber(String s)
@@ -241,17 +250,22 @@ public class CreatorAgent extends Agent
 	{
 		String txt = "";
 		
-		if (!type.equals("Borda"))
+		if (type.equals("Plurality"))
 		{	
 			txt = "ganhador;";
 			
 			for (int i = 0; i < agentQnt; i++)
 				txt += "agente"+(i+1)+";";
 			
-			if (type.equals("Sequential"))
-				txt+= "turno;";
+		}
+		else if (type.equals("Sequential"))
+		{
+			txt = "ganhador;";
 			
-			txt += "falha;\n";
+			for (int i = 0; i < optionQnt - 1; i++)
+				txt += "turn"+(i+1)+";";
+			
+			txt += "opcoes;";
 		}
 		else
 		{
@@ -260,9 +274,9 @@ public class CreatorAgent extends Agent
 			
 			for (int i = 0; i < agentQnt; i++)
 				txt += "agente"+(i+1)+";";
-			
-			txt += "falha;\n";
 		}
+		
+		txt += "falha;\n";
 		
 		writeToFile(txt);
 	}
@@ -291,5 +305,5 @@ public class CreatorAgent extends Agent
 
 	public int getFlawedQnt() {
 		return flawedQnt;
-	}
+	}	
 }
