@@ -23,7 +23,7 @@ public class CreatorAgent extends Agent
 	private String[] options = null;
 	private int[] votes = null;
 	private String flawed = "";
-	private int flawedQnt = 2;
+	private int flawedQnt = 1;
 	private String type = null;
 	private boolean receive;
 	private int round = 1;	
@@ -37,9 +37,9 @@ public class CreatorAgent extends Agent
 
 //	Tempo medio (Pluralidade) = (227 / 10) * 2 = 45~ (10 Agentes)	
 //	Tempo medio (Borda) = (237 / 10) * 2 = ~47 (10 Agentes)
-//	Tempo medio (Sequencial) = (416 / 10) * 2 = ~83 (10 Agentes)
+//	Tempo medio (Sequencial) = (552 / 10) * 2 = ~110 (10 Agentes)
 	
-	private int[] timeOut = {45, 47, 83};
+	private int[] timeOut = {45, 47, 110};
 			
 	protected void setup()
 	{
@@ -260,12 +260,17 @@ public class CreatorAgent extends Agent
 		}
 		else if (type.equals("Sequential"))
 		{
-			txt = "ganhador;";
+			txt = "ganhador;ganhadorTurno;";
 			
-			for (int i = 0; i < optionQnt - 1; i++)
-				txt += "turn"+(i+1)+";";
+			for (int i = 0; i < agentQnt; i++)
+				txt += "agente"+(i+1)+";";
 			
-			txt += "opcoes;";
+			txt += "turno;";
+			
+//			for (int i = 0; i < optionQnt - 1; i++)
+//				txt += "turn"+(i+1)+";";
+			
+//			txt += "opcoes;";
 		}
 		else
 		{

@@ -72,7 +72,6 @@ public class ListenBehaviour extends SimpleBehaviour
 	
 	private String bordaVoting()
 	{
-//		String[] choice = shuffle(agent.getOptions());
 		String[] choice = agent.getOptions();
 		String text = "";		
 		
@@ -91,34 +90,26 @@ public class ListenBehaviour extends SimpleBehaviour
 		
 		int i = 0;
 		
+		try {
+			
 		while(!options[i].equals(new_options[0]) && !options[i].equals(new_options[1]))
 			i++;
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			System.out.println("Options " + new_options[0] + " " + new_options[1]);
+			for (int j = 0; j < 5; j++)
+				System.out.print(options[j]);
+			System.out.println();
+		}
 		
 		return options[i];
 	}
 	
 	private String pluralityVoting()
 	{
-//		return shuffle(agent.getOptions())[0];
 		return agent.getOption(0);
 	}
-	
-//	private String[] shuffle(String[] options)
-//	{
-//		int i,j;
-//		Random generator = new Random();
-//		
-//		for (i = options.length - 1; i > 0; i--)
-//		{
-//			j = generator.nextInt(i);
-//			String temp = options[i];
-//			options[i] = options[j];
-//			options[j] = temp;
-//		}
-//		printVotingOrder(options);
-//		
-//		return options;
-//	}
 	
 	private void printVotingOrder(String[] options)
 	{
