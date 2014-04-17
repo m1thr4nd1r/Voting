@@ -12,31 +12,31 @@ import jade.lang.acl.ACLMessage;
 public class PoolingBehaviour extends SimpleBehaviour {
 	
 	private CreatorAgent agent;
-	private int votesLeft;
-	private int turn;
-	private int turns;
+	private int turn,turns,votesLeft,step;
 	private double execTime, startTime;
 	private ArrayList<Integer> votes;
 	private ArrayList<String> options;
 	private String choice[];
-	private int step;
 	
 	public PoolingBehaviour(Agent a)
 	{
 		this.myAgent = a;
 		this.agent = (CreatorAgent) a;
+		
 		this.votesLeft = agent.getAgentQnt();
-		this.turn = 1;
+		
 		this.startTime = System.currentTimeMillis();
+		
 		this.choice = new String[votesLeft];
 		this.options = new ArrayList<String>(Arrays.asList(agent.getOptions().clone()));
-		
 		this.votes = new ArrayList<Integer>();
+		
 		for (int i = 0; i < options.size(); i++)
 			this.votes.add(0);
 		
+		this.turn = 1;
 		this.step = 0;
-		this.turns = agent.getOptionQnt() - 1;
+		this.turns = options.size() - 1;
 		
 		if (!this.agent.isReceiving() && agent.getRound() > 1)
 			votesLeft-= agent.getFlawedQnt();
@@ -55,10 +55,8 @@ public class PoolingBehaviour extends SimpleBehaviour {
 			
 			if (msg.getConversationId().equals("Sequential") && 
 				this.turn < this.turns && 
-				(votesLeft == agent.getAgentQnt() || (votesLeft == agent.getAgentQnt() - agent.getFlawedQnt() && 
-													!agent.isReceiving() && 
-													agent.getRound() > 1)))
-				this.agent.addBehaviour(new StartBehaviour(this.agent, this.agent.getType(), getSequentialOptions(""), agent.getAgentQnt()));
+				votesLeft == agent.getVotesQnt())
+					this.agent.addBehaviour(new StartBehaviour(this.agent, this.agent.getType(), getSequentialOptions(""), agent.getAgentQnt()));
 			
 			msg = agent.receive();
 		}
@@ -80,26 +78,61 @@ public class PoolingBehaviour extends SimpleBehaviour {
 	{
 		int i = 0;
 		
-		if (agent.getType().equals("Sequential"))
-		{
-			try {
-				
-			while (!options.get(i).equals(vote) && i < options.size())
-				i++;
-			}
-			catch (IndexOutOfBoundsException e)
-			{
-				System.out.println("find " + vote + " " + i);
-				for (int j = 0; j < options.size(); j++)
-					System.out.print(options.get(j) + " ");
-				System.out.println();
-			}
-		}
-		else
-			while (!agent.getOption(i).equals(vote))
-				i++;
+		while (!options.get(i).equals(vote) && i < options.size())
+			i++;
 		
 		return i;
+	}
+	
+	public void pluralityPooling(String vote, String name)
+	{
+		int i = find(vote);
+		this.startTime = System.currentTimeMillis();
+		
+		votes.set(i, votes.get(i) + 1);
+		votesLeft--;
+		choice[Integer.valueOf(name) - 1] = options.get(i);
+		
+		System.out.println("Eleitor " + name + " - Vota na opção de numero " + (i+1) + " (" + options.get(i) + "). Total de Votos desta opção: " + votes.get(i));
+	}
+	
+	public void bordaPooling(String vote, String name)
+	{
+		this.startTime = System.currentTimeMillis();
+		int end = vote.length() - 1;
+		int begin = vote.lastIndexOf(' ', end - 1);
+		int count = 1;
+		int i = 0;
+		String op = "";
+		String points = "";
+		
+		choice[Integer.valueOf(name) - 1] = vote.replace(' ', ',');
+		
+		while (begin != -1)
+		{
+			i = find(vote.substring(begin+1, end));
+			end = begin;
+			begin = vote.lastIndexOf(' ', end - 1);
+			
+			votes.set(i, votes.get(i) + count);
+			count++;
+			
+			op = options.get(i) + " " + op;
+			points = String.valueOf(votes.get(i)) + " " + points;
+		}
+		
+		i = find(vote.substring(0, end));
+		
+		votes.set(i, votes.get(i) + count);
+		count++;
+		
+		op = options.get(i) + " " + op;
+		points = String.valueOf(votes.get(i)) + " " + points;
+		
+		votesLeft--;
+			
+		System.out.println("Eleitor " + name + " - Vota na seguinte ordem : " + op);
+		System.out.println("      Pontuação de cada opção      : " + points);
 	}
 	
 	public void sequentialPooling(String vote, String name)
@@ -139,74 +172,21 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		}	
 	}
 	
-	public void bordaPooling(String vote, String name)
-	{
-		int end = vote.length() - 1;
-		int begin = vote.lastIndexOf(' ', end - 1);
-		int count = 1;	
-		String op = "";
-		String points = "";
-		
-		choice[Integer.valueOf(name) - 1] = vote.replace(' ', ',');
-		
-		while (begin != -1)
-		{
-			int i = find(vote.substring(begin+1, end));
-			end = begin;
-			begin = vote.lastIndexOf(' ', end - 1);
-			
-			agent.increment(i, count);
-			count++;
-			
-			op = agent.getOption(i) + " " + op;
-			points = String.valueOf(agent.getVotes(i)) + " " + points;
-		}
-		
-		int i = find(vote.substring(0, end));
-		
-		agent.increment(i, count);
-		count++;
-		
-		op = agent.getOption(i) + " " + op;
-		points = String.valueOf(agent.getVotes(i)) + " " + points;
-		
-		votesLeft--;
-			
-		System.out.println("Eleitor " + name + " - Vota na seguinte ordem : " + op);
-		System.out.println("      Pontuação de cada opção      : " + points);
-	}
-	
-	public void pluralityPooling(String vote, String name)
-	{
-		int i = find(vote);
-		
-		agent.increment(i);
-		votes.set(i, votes.get(i) + 1);
-		votesLeft--;
-		choice[Integer.valueOf(name) - 1] = agent.getOption(i);
-		
-		System.out.println("Eleitor " + name + " - Vota na opção de numero " + (i+1) + " (" + agent.getOption(i) + "). Total de Votos desta opção: " + agent.getVotes(i));
-	}
-	
 	public void orderOptions()
 	{
 //		Bubble Sort
-		int optionQnt = this.options.size();
-		int[] v = agent.getVotes();
-		String[] o = agent.getOptions();
-		
-		for (int i = 0; i < optionQnt; i++)
-			for (int j = 0; j < optionQnt; j++)
-				if (v[i] > v[j])
+		for (int i = 0; i < options.size(); i++)
+			for (int j = 0; j < options.size(); j++)
+				if (votes.get(i) > votes.get(j))
 				{
-					int tempI = v[i];
-					String tempS = o[i];
+					int tempI = votes.get(i);
+					String tempS = options.get(i);
 					
-					v[i] = v[j];
-					o[i] = o[j];
+					votes.set(i, votes.get(j));
+					options.set(i, options.get(j));
 					
-					v[j] = tempI;
-					o[j] = tempS;
+					votes.set(j, tempI);
+					options.set(j, tempS);
 				}
 	}
 	
@@ -231,49 +211,6 @@ public class PoolingBehaviour extends SimpleBehaviour {
 	{
 		return this.execTime > this.agent.getTimeOut();
 	}
-		
-	public void createCSV()
-	{
-		String txt = "";
-		
-		if (agent.getType().equals("Plurality"))
-		{
-			txt = agent.getOption(0) + ";";
-			for (int i = 0 ; i < choice.length; i++)
-				txt += choice[i] + ";";
-		}
-		else if (agent.getType().equals("Sequential"))
-		{
-			txt = (options.size() == 1)? options.get(0) : ""; 
-			
-			txt += ";" + options.get(step) + ";";
-			
-			for (int i = 0 ; i < choice.length; i++)
-				txt += choice[i] + ";";
-			
-			txt += turn + ";";
-			
-//			for (int i = 0 ; i < turns; i++)
-//				txt += turnWinners[i] + ";";
-//			
-//			for (int i = 0; i < agent.getOptions().length; i++)
-//				txt += agent.getOption(i) + " ";
-			
-//			txt += ";";
-		}
-		else
-		{
-			for (int i = 0; i < agent.getOptionQnt(); i++)
-				txt += agent.getOption(i) + ";";
-			
-			for (int i = 0 ; i < choice.length; i++)
-				txt += choice[i] + ";";
-		}
-		
-		txt += agent.getFlawed() + ";\n";
-		
-		agent.writeToFile(txt);
-	}
 	
 	@Override
 	public boolean done() {
@@ -281,11 +218,9 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		if (agent.getRound() == 1 || this.agent.isReceiving())
 		{
 			if (agent.getType().equals("Sequential"))
-//				return votesLeft == 3 && turn => turns;
 				return options.size() == 1;
 			else
-				return votesLeft == 0;				
-			
+				return votesLeft == 0;
 		}
 		else
 		{
@@ -301,31 +236,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		System.out.println();
 		long time = agent.getTime();
 		
-		if (agent.getType().equals("Plurality"))
-		{
-			orderOptions();	
-			System.out.print("O ganhador da eleição é '" + agent.getOption(0) + "' com " + agent.getVotes(0) + " votos");
-			
-			createCSV();
-		}
-		else if (agent.getType().equals("Sequential"))
-			System.out.print("O ganhador da eleição é '" + options.get(0) + "' com " + votes.get(0) + " votos");
-		else if (agent.getType().equals("Borda"))
-		{
-			orderOptions();	
-			
-			System.out.print("A eleição determinou a seguinte prioridade: ");
-						
-			for (int i = 0; i < agent.getOptionQnt(); i++)
-				System.out.print(agent.getOption(i) + " ");
-			
-			System.out.print("\n   Cada opção teve a seguinte pontuação   : ");
-			
-			for (int i = 0; i < agent.getOptionQnt(); i++)
-				System.out.print(agent.getVotes(i) + " ");
-			
-			createCSV();
-		}		
+		declareWinner();
 		
 		System.out.println("\nTempo de execução: " + time + " milisegundos");
 		System.out.println("-------------- Termino do Round " + agent.getRound() + " --------------\n");
@@ -338,12 +249,8 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		else
 		{
 			if (!this.agent.isReceiving())
-			{
-				this.agent.clearFlawed();
 				this.agent.chooseFlawed();
-			}
 			
-			agent.resetVotes();
 			agent.incrementRound();
 			agent.setStartTime();
 			
@@ -352,5 +259,67 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		}
 		
 		return 0;
+	}
+	
+	public void declareWinner()
+	{
+		if (agent.getType().equals("Plurality"))
+		{
+			orderOptions();	
+			System.out.print("O ganhador da eleição é '" + options.get(0) + "' com " + votes.get(0) + " votos");			
+			createCSV();
+		}
+		else if (agent.getType().equals("Sequential"))
+			System.out.print("O ganhador da eleição é '" + options.get(0) + "' com " + votes.get(0) + " votos");
+		else if (agent.getType().equals("Borda"))
+		{
+			orderOptions();	
+			System.out.print("A eleição determinou a seguinte prioridade: ");
+						
+			for (int i = 0; i < options.size(); i++)
+				System.out.print(options.get(i) + " ");
+			
+			System.out.print("\n   Cada opção teve a seguinte pontuação   : ");
+			
+			for (int i = 0; i < votes.size(); i++)
+				System.out.print(votes.get(i) + " ");
+			
+			createCSV();
+		}	
+	}
+	
+	public void createCSV()
+	{
+		String txt = "";
+		
+		if (agent.getType().equals("Plurality"))
+		{
+			txt = options.get(0) + ";";
+			for (int i = 0 ; i < choice.length; i++)
+				txt += choice[i] + ";";
+		}
+		else if (agent.getType().equals("Sequential"))
+		{
+			txt = (options.size() == 1)? options.get(0) : ""; 
+			
+			txt += ";" + options.get(step) + ";";
+			
+			for (int i = 0 ; i < choice.length; i++)
+				txt += choice[i] + ";";
+			
+			txt += turn + ";";
+		}
+		else
+		{
+			for (int i = 0; i < options.size(); i++)
+				txt += options.get(i) + ";";
+			
+			for (int i = 0 ; i < choice.length; i++)
+				txt += choice[i] + ";";
+		}
+		
+		txt += agent.getFlawed() + ";\n";
+		
+		agent.writeToFile(txt);
 	}
 }
