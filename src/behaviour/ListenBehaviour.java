@@ -1,7 +1,5 @@
 package behaviour;
 
-//import java.util.Random;
-
 import agents.VoterAgent;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
@@ -46,11 +44,6 @@ public class ListenBehaviour extends SimpleBehaviour
 				else if (msg.getConversationId().equals("Sequential"))
 					reply.setContent(sequentialVoting(msg.getContent()));
 			}
-//			else if (msg.getConversationId().equals("Turn"))
-//			{
-//				reply.setContent(pluralityVoting(msg.getContent()));	
-//				this.agent.send(reply);
-//			}
 			else
 				this.done = true;
 						
@@ -70,7 +63,7 @@ public class ListenBehaviour extends SimpleBehaviour
 		return i;
 	}
 	
-	private String bordaVoting()
+	public String bordaVoting()
 	{
 		String[] choice = agent.getOptions();
 		String text = "";		
@@ -81,7 +74,7 @@ public class ListenBehaviour extends SimpleBehaviour
 		return text;
 	}
 	
-	private String sequentialVoting(String content)
+	public String sequentialVoting(String content)
 	{
 		String[] options = agent.getOptions();
 		int middle = content.indexOf(" ");
@@ -90,28 +83,18 @@ public class ListenBehaviour extends SimpleBehaviour
 		
 		int i = 0;
 		
-		try {
-			
 		while(!options[i].equals(new_options[0]) && !options[i].equals(new_options[1]))
 			i++;
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			System.out.println("Options " + new_options[0] + " " + new_options[1]);
-			for (int j = 0; j < 5; j++)
-				System.out.print(options[j]);
-			System.out.println();
-		}
 		
 		return options[i];
 	}
 	
-	private String pluralityVoting()
+	public String pluralityVoting()
 	{
 		return agent.getOption(0);
 	}
 	
-	private void printVotingOrder(String[] options)
+	public void printVotingOrder(String[] options)
 	{
 		int i;
 		String text;

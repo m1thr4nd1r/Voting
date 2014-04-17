@@ -34,11 +34,7 @@ public class StartBehaviour extends OneShotBehaviour
 		if (this.id.equals("Done"))
 			msg = new ACLMessage(ACLMessage.INFORM);
 		else
-		{
-			if (!this.id.equals("Sequential"))
-				System.out.println("-------------- Inicio do Round " + agent.getRound() + " --------------");
 			msg = new ACLMessage(ACLMessage.REQUEST);
-		}
 		
 		msg.setConversationId(id);
 		msg.setContent(content);

@@ -21,9 +21,8 @@ public class CreatorAgent extends Agent
 	private int optionQnt = 0;
 	private int agentQnt = 0;
 	private String[] options = null;
-	private int[] votes = null;
 	private String flawed = "";
-	private int flawedQnt = 1;
+	private int flawedQnt = 2;
 	private String type = null;
 	private boolean receive;
 	private int round = 1;	
@@ -58,7 +57,6 @@ public class CreatorAgent extends Agent
 			optionQnt = Integer.parseInt((String) args[2]);
 			
 			options = new String[optionQnt];
-			votes = new int[optionQnt];
 			
 //			Extraindo opcoes disponiveis
 			for (int i = 0; i < optionQnt; i++)
@@ -111,59 +109,21 @@ public class CreatorAgent extends Agent
 		writer.close();
 	}
 	
+	public int getAgentQnt() {
+		return agentQnt;
+	}
+	
 	public String getOption(int index)
 	{
 		return options[index];
 	}
 	
-	public int getAgentQnt() {
-		return agentQnt;
-	}
-
-	public int getOptionQnt() {
-		return optionQnt;
-	}
-
 	public String[] getOptions() {
 		return options;
 	}
 
-	public int[] getVotes() {
-		return votes;
-	}
-
-	public int getVotes(int index)
-	{
-		return votes[index];
-	}
-	
 	public String getType() {
 		return type;
-	}
-
-	public void increment(int index)
-	{
-		votes[index]++;
-	}
-	
-	public void increment(int index, int amount)
-	{
-		votes[index]+= amount;
-	}
-	
-	public void resetVotes()
-	{
-		for (int i = 0; i < options.length; i++)
-			votes[i] = 0;
-	}
-	
-	public void resetVote(String option)
-	{
-		int i = 0;
-		while (i < options.length && !options[i].equals(option))
-			i++;
-		
-		votes[i] = 0;
 	}
 	
 	public String extractNumber(String s)
@@ -185,14 +145,11 @@ public class CreatorAgent extends Agent
 		return flawed.contains(name + " ") && !receive && round > 1;
 	}
 	
-	public void clearFlawed()
-	{
-		this.flawed = "";
-	}
-	
 	public void chooseFlawed()
 	{
+		this.flawed = "";
 		Random r = new Random();
+				
 		for (int i = 0; i < flawedQnt; i++)
 		{
 			String buggy = Integer.toString(r.nextInt(agentQnt) + 1);
@@ -266,15 +223,10 @@ public class CreatorAgent extends Agent
 				txt += "agente"+(i+1)+";";
 			
 			txt += "turno;";
-			
-//			for (int i = 0; i < optionQnt - 1; i++)
-//				txt += "turn"+(i+1)+";";
-			
-//			txt += "opcoes;";
 		}
 		else
 		{
-			for (int i = 0; i < optionQnt; i++)
+			for (int i = 0; i < options.length; i++)
 				txt += "prioridade "+(i+1)+";";
 			
 			for (int i = 0; i < agentQnt; i++)
@@ -306,6 +258,11 @@ public class CreatorAgent extends Agent
 	public boolean isReceiving()
 	{
 		return receive;
+	}
+	
+	public int getVotesQnt()
+	{
+		return (!receive && round > 1) ? agentQnt - flawedQnt : agentQnt;
 	}
 
 	public int getFlawedQnt() {
