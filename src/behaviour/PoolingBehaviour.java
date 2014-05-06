@@ -16,7 +16,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 	private double execTime, startTime;
 	private ArrayList<Integer> votes;
 	private ArrayList<String> options;
-	private String choice[];
+	private String choice[], type;
 	
 	public PoolingBehaviour(Agent a)
 	{
@@ -34,8 +34,9 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		for (int i = 0; i < options.size(); i++)
 			this.votes.add(0);
 		
-		this.turn = 1;
-		this.step = 0;
+		this.turn = 0;
+		this.step = -1;
+		this.type = "Forward";
 		this.turns = options.size() - 1;
 		
 		if (!this.agent.isReceiving() && agent.getRound() > 1)
@@ -56,7 +57,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 			if (msg.getConversationId().equals("Sequential") && 
 				this.turn < this.turns && 
 				votesLeft == agent.getVotesQnt())
-					this.agent.addBehaviour(new StartBehaviour(this.agent, this.agent.getType(), getSequentialOptions(""), agent.getAgentQnt()));
+					this.agent.addBehaviour(new StartBehaviour(this.agent, this.agent.getType(), getSequentialOptions(), agent.getAgentQnt()));
 			
 			msg = agent.receive();
 		}
@@ -144,20 +145,19 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		votesLeft--;
 		choice[Integer.valueOf(name) - 1] = options.get(i);
 		
-		System.out.println("Eleitor " + name + " - Vota na opção de numero " + (i+1) + " (" + options.get(i) + ") no " + turn + " turno. Total de Votos desta opção: " + votes.get(i));
+		System.out.println("Eleitor " + name + " - Vota na opção de numero " + (i+1) + " (" + options.get(i) + ") no " + (turn+1) + " turno. Total de Votos desta opção: " + votes.get(i));
 		
 		if (votesLeft == 0 && turn <= turns)
 		{
-			if (this.votes.get(step) >= this.votes.get(1 + step))
-			{
-				votes.remove(1 + step);
-				options.remove(1 + step);
-			}
-			else
-			{
-				votes.remove(step);
-				options.remove(step);
-			}
+			int loser;
+			
+			if (type.contains("Forward"))
+				loser = (this.votes.get(step) >= this.votes.get(1 + step)) ? step + 1 : step;
+			else 			
+				loser = (this.votes.get(votes.size() - step) >= this.votes.get(votes.size() - step - 1)) ? votes.size() - step - 1 : votes.size() - step; 
+			
+			votes.remove(loser);
+			options.remove(loser);
 			
 			createCSV();
 			for (int j = 0 ; j < choice.length; j++)
@@ -190,10 +190,14 @@ public class PoolingBehaviour extends SimpleBehaviour {
 				}
 	}
 	
-	public String getSequentialOptions(String type) 
+	public String getSequentialOptions() 
 	{
+		// Step começa de 0
+		// Turn começa de 1
 		step++;
 		turn++;
+		
+		boolean overflow = false;
 		
 		if (step >= options.size() - 1)
 		{			
@@ -201,10 +205,26 @@ public class PoolingBehaviour extends SimpleBehaviour {
 			for (int i = 0; i < options.size(); i++)
 				votes.add(0);
 			
-			step = 0;
+			overflow = true;
 		}
 		
-		return options.get(step) + " " + options.get(step + 1);
+		if (type.contains("M") && overflow)
+				type = (type.contains("Forward")) ? "BackwardsM" : "ForwardM";
+			
+		if (type.contains("Forward"))
+		{
+			if (overflow)
+				step = 0;
+			
+			return options.get(step) + " " + options.get(step + 1);
+		}
+		else // if (type.contains("Backwards"))
+		{
+			if (overflow)
+				step = 1;
+			
+			return options.get(options.size() - step) + " " + options.get(options.size() - step - 1);
+		}	
 	}
 	
 	public boolean timeOut()
@@ -254,8 +274,10 @@ public class PoolingBehaviour extends SimpleBehaviour {
 			agent.incrementRound();
 			agent.setStartTime();
 			
-			agent.addBehaviour(new PoolingBehaviour(agent));
-			agent.addBehaviour(new StartBehaviour(agent, agent.getType(), agent.getOption(0) + " " + agent.getOption(1), agent.getAgentQnt()));
+			PoolingBehaviour behaviour = new PoolingBehaviour(agent);
+			
+			agent.addBehaviour(behaviour);
+			agent.addBehaviour(new StartBehaviour(agent, agent.getType(), behaviour.getSequentialOptions() , agent.getAgentQnt()));
 		}
 		
 		return 0;

@@ -38,7 +38,7 @@ public class CreatorAgent extends Agent
 //	Tempo medio (Borda) = (237 / 10) * 2 = ~47 (10 Agentes)
 //	Tempo medio (Sequencial) = (552 / 10) * 2 = ~110 (10 Agentes)
 	
-	private int[] timeOut = {45, 47, 110};
+	private int[] timeOut = {45, 47, 150};
 			
 	protected void setup()
 	{
@@ -99,8 +99,10 @@ public class CreatorAgent extends Agent
 			beginWriting();
 			this.setStartTime();
 			
-			this.addBehaviour(new PoolingBehaviour(this));
-			this.addBehaviour(new StartBehaviour(this, type, options[0] + " " + options[1], agentQnt));
+			PoolingBehaviour behaviour = new PoolingBehaviour(this);
+			
+			this.addBehaviour(behaviour);
+			this.addBehaviour(new StartBehaviour(this, type, behaviour.getSequentialOptions(), agentQnt));
 		}
 	}
 	
