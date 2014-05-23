@@ -1,5 +1,8 @@
 package agents;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import behaviour.ListenBehaviour;
@@ -51,18 +54,22 @@ public class VoterAgent extends Agent
 		return options[index];
 	}
 	
-	private String[] shuffle(String[] options)
+	public String[] shuffle(String[] options)
 	{
-		int i,j;
-		Random generator = new Random();
+//		int i,j;
+//		Random generator = new Random();
+//		
+//		for (i = options.length - 1; i > 0; i--)
+//		{
+//			j = generator.nextInt(i);
+//			String temp = options[i];
+//			options[i] = options[j];
+//			options[j] = temp;
+//		}
 		
-		for (i = options.length - 1; i > 0; i--)
-		{
-			j = generator.nextInt(i);
-			String temp = options[i];
-			options[i] = options[j];
-			options[j] = temp;
-		}
+		ArrayList<String> op = new ArrayList<String>(Arrays.asList(options));
+		Collections.shuffle(op);
+		this.options = op.toArray(new String[op.size()]);
 		
 		return options;
 	}	
