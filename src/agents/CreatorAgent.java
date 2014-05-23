@@ -22,6 +22,7 @@ public class CreatorAgent extends Agent
 	private int agentQnt = 0;
 	private String[] options = null;
 	private String flawed = "";
+	private String method = "Forward";
 	private int flawedQnt = 2;
 	private String type = null;
 	private boolean receive;
@@ -269,5 +270,9 @@ public class CreatorAgent extends Agent
 
 	public int getFlawedQnt() {
 		return flawedQnt;
+	}
+
+	public String getMethod() {
+		return method;
 	}	
 }

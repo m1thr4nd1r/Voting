@@ -36,7 +36,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 		
 		this.turn = 0;
 		this.step = -1;
-		this.type = "Forward";
+		this.type = agent.getMethod();
 		this.turns = options.size() - 1;
 		
 		if (!this.agent.isReceiving() && agent.getRound() > 1)
