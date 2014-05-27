@@ -90,8 +90,18 @@ public class CreatorAgent extends Agent
 			
 			printOptions();			
 			
+			String filename = type + " " + Integer.toString(flawedQnt) + "f-";
+			
+			if (this.type.equals("Sequential"))
+				if (this.method.contains("M"))
+					filename += "m-";
+				else if (this.method.equals("Forward"))
+					filename += "f-";
+			
+			filename += "1.csv";
+			
 			try {
-				writer = new PrintWriter(type + ".csv", "UTF-8");				
+				writer = new PrintWriter(filename, "UTF-8");				
 			} catch (FileNotFoundException | UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
