@@ -154,7 +154,7 @@ public class PoolingBehaviour extends SimpleBehaviour {
 			if (type.contains("Forward"))
 				loser = (this.votes.get(step) >= this.votes.get(1 + step)) ? step + 1 : step;
 			else 			
-				loser = (this.votes.get(votes.size() - step) >= this.votes.get(votes.size() - step - 1)) ? votes.size() - step - 1 : votes.size() - step; 
+				loser = (this.votes.get(votes.size() - step) > this.votes.get(votes.size() - step - 1)) ? votes.size() - step - 1 : votes.size() - step; 
 			
 			votes.remove(loser);
 			options.remove(loser);
